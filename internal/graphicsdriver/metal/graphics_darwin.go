@@ -365,17 +365,19 @@ func Get() *Graphics {
 	return &theGraphics
 }
 
-func (g *Graphics) Begin() {
+func (g *Graphics) Begin() error {
 	// NSAutoreleasePool is required to release drawable correctly (#847).
 	// https://developer.apple.com/library/archive/documentation/3DDrawing/Conceptual/MTLBestPracticesGuide/Drawables.html
 	g.pool = C.allocAutoreleasePool()
+	return nil
 }
 
-func (g *Graphics) End(present bool) {
+func (g *Graphics) End(present bool) error {
 	g.flushIfNeeded(present)
 	g.screenDrawable = ca.MetalDrawable{}
 	C.releaseAutoreleasePool(g.pool)
 	g.pool = nil
+	return nil
 }
 
 func (g *Graphics) SetWindow(window uintptr) {
@@ -459,7 +461,7 @@ func (g *Graphics) availableBuffer(length uintptr) mtl.Buffer {
 	return newBuf
 }
 
-func (g *Graphics) SetVertices(vertices []float32, indices []uint16) {
+func (g *Graphics) SetVertices(vertices []float32, indices []uint16) error {
 	vbSize := unsafe.Sizeof(vertices[0]) * uintptr(len(vertices))
 	ibSize := unsafe.Sizeof(indices[0]) * uintptr(len(indices))
 
@@ -468,6 +470,8 @@ func (g *Graphics) SetVertices(vertices []float32, indices []uint16) {
 
 	g.ib = g.availableBuffer(ibSize)
 	g.ib.CopyToContents(unsafe.Pointer(&indices[0]), ibSize)
+
+	return nil
 }
 
 func (g *Graphics) flushIfNeeded(present bool) {
@@ -1200,7 +1204,7 @@ func (i *Image) ReadPixels(buf []byte) error {
 	return nil
 }
 
-func (i *Image) ReplacePixels(args []*graphicsdriver.ReplacePixelsArgs) {
+func (i *Image) ReplacePixels(args []*graphicsdriver.ReplacePixelsArgs) error {
 	g := i.graphics
 
 	g.flushRenderCommandEncoderIfNeeded()
@@ -1260,6 +1264,8 @@ func (i *Image) ReplacePixels(args []*graphicsdriver.ReplacePixelsArgs) {
 		bce.CopyFromTexture(t, 0, 0, so, ss, i.texture, 0, 0, do)
 	}
 	bce.EndEncoding()
+
+	return nil
 }
 
 func (i *Image) mtlTexture() mtl.Texture {

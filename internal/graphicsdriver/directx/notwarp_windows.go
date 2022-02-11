@@ -1,4 +1,4 @@
-// Copyright 2018 The Ebiten Authors
+// Copyright 2022 The Ebiten Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build (!darwin && !windows) || ebitencbackend || ebitengl
-// +build !darwin,!windows ebitencbackend ebitengl
+//go:build !ebitendirectxwarp
+// +build !ebitendirectxwarp
 
-package graphicscommand
+package directx
 
-import (
-	"github.com/hajimehoshi/ebiten/v2/internal/graphicsdriver"
-	"github.com/hajimehoshi/ebiten/v2/internal/graphicsdriver/opengl"
-)
-
-func graphicsDriver() graphicsdriver.Graphics {
-	return opengl.Get()
-}
+const useWARP = false
